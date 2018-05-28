@@ -1,105 +1,122 @@
+
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.image.ImageObserver;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 public class Game extends JPanel {
-
-	Timer t = new Timer(2, new Listener());
-	public int i; 
+	private static final long serialVersionUID = 1;
+	public int i;
 	public int j;
-	public int lado = 66;
+	public int lado = 64;
 	public int trocaCor = 1;
-	
-	public int pecax = lado/2 + 5*lado;
-	public int pecay = lado/2 + 7*lado;
-	
-	public Game(){
-		super();
-		t.start();
-		addKeyListener(new Key());
-		setFocusable(true);
-		
-		
+	public static int trocaCorSelecao = -1;
+	public int pecax = this.lado / 2 + 5 * this.lado;
+	public int pecay = this.lado / 2 + 7 * this.lado;
+
+	public Game() {
+		this.addKeyListener(new Key(this));
+		this.addMouseListener(new Mouse(this));
+		this.setFocusable(true);
 	}
-	
-	private class Listener implements ActionListener {
-		public void actionPerformed(ActionEvent e){
-			repaint();
-		}
+
+	public boolean verificaRoque(Tabuleiro t, int cliqueX, int cliqueY) {
+		return false;
 	}
-		
-	
-	public void paintComponent(Graphics g){
+
+	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		
-		setBackground(Color.GRAY);
-		
-		for(i=0; i<8; i++){
-			for(j=0; j<8; j++) {
-				if (trocaCor == 1){
+		this.setBackground(Color.GRAY);
+		this.i = 0;
+		while (this.i < 8) {
+			this.j = 0;
+			while (this.j < 8) {
+				if (this.trocaCor == 1) {
 					g.setColor(Color.WHITE);
-				}
-				else if(trocaCor == -1){
+				} else if (this.trocaCor == -1) {
 					g.setColor(Color.BLACK);
-					
 				}
-				g.fillRect(j*lado, i*lado, lado, lado);
-				trocaCor *= -1;
-			}	
-			trocaCor *= -1;
-			
+				g.fillRect(this.j * this.lado, this.i * this.lado, this.lado, this.lado);
+				g.setColor(Color.RED);
+				if (Regras.getMarcador(Regras.tab, this.j, this.i)) {
+					g.fillRect(this.j * this.lado, this.i * this.lado, this.lado, this.lado);
+				}
+				g.setColor(Color.YELLOW);
+				if (Regras.casaOcupada(Regras.tab, this.j, this.i)
+						&& Regras.tab.casas[this.j][this.i].peca.imagem != null) {
+					g.drawImage(Regras.tab.casas[this.j][this.i].peca.imagem, this.j * this.lado, this.i * this.lado,
+							null);
+				}
+				this.trocaCor *= -1;
+				++this.j;
+			}
+			this.trocaCor *= -1;
+			++this.i;
 		}
-		i=0;
-		j=0;
+		this.i = 0;
+		this.j = 0;
 		g.setColor(Color.BLUE);
-		g.fillRect(pecax-10, pecay-10, 20, 20);
-		
 	}
-	
-	private class Key extends KeyAdapter {
-		public void keyPressed(KeyEvent e){
-			if(e.getKeyCode() == KeyEvent.VK_DOWN){
-				trocaCor *= -1;
-			}
-			if(e.getKeyCode() == KeyEvent.VK_LEFT){
-			}
-			if(e.getKeyCode() == KeyEvent.VK_RIGHT){
-			}
-			if(e.getKeyCode() == KeyEvent.VK_S){
-			}
-			if(e.getKeyCode() == KeyEvent.VK_A){
-			}
-		}
-		public void keyReleased(KeyEvent e){
-			
-			if(e.getKeyCode() == KeyEvent.VK_LEFT){
-				
-			}
-			if(e.getKeyCode() == KeyEvent.VK_RIGHT){
-				
-			}
-		}
-	}
-	
-	
-	
-	public static void main (String args[]){
+
+	public static void main(String[] args) {
 		JFrame frame = new JFrame();
-		frame.setSize(800,600);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setSize(800, 600);
+		frame.setDefaultCloseOperation(3);
 		Game panel = new Game();
 		frame.add(panel);
 		frame.setVisible(true);
 	}
+
+	private class Key extends KeyAdapter {
+		final /* synthetic */ Game this$0;
+
+		private Key(Game game) {
+			this.this$0 = game;
+		}
+
+		@Override
+		public void keyPressed(KeyEvent e) {
+			int b = e.getKeyCode();
+			Regras.teclado(b);
+			this.this$0.repaint();
+		}
+
+		// /* synthetic */ Key(Game game, Key key) {
+		// Key key2;
+		// key2(game);
+		// }
+	}
+
+	private class Mouse extends MouseAdapter {
+		final /* synthetic */ Game this$0;
+
+		private Mouse(Game game) {
+			this.this$0 = game;
+		}
+
+		public void mouseClicked(MouseEvent e) {
+			int x = e.getX() / this.this$0.lado;
+			int y = e.getY() / this.this$0.lado;
+			int button = e.getButton();
+			Regras.clique(Regras.getTabuleiro(), x, y, button);
+			this.this$0.repaint();
+		}
+
+		// /* synthetic */ Mouse(Game game, Mouse mouse) {
+		// Mouse mouse2;
+		// mouse2(game);
+		// }
+	}
+
 }
-	
-	
-	
-	
-	
-	
-	
